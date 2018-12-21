@@ -12,6 +12,10 @@
 
 start(_Type, _Args) ->
 	%Waarde = 2+2,
+	io:format("hier is de survivor normaal gestart~n",[]),
+	%survivor:start(),
+	%testModule:start(),
+	testModule:start_3pipes(),
 	Dispatch = cowboy_router:compile([
 		{'_', [
 			{"/[...]", cowboy_static, {priv_dir, tagp, ""}}

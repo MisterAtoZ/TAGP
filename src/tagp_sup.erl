@@ -14,6 +14,7 @@
 
 -spec start_link() -> {ok, pid()}.
 start_link() ->
+	io:format("print iets in de supervisor", []),
 	supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 %% supervisor.
