@@ -19,8 +19,9 @@ start(_Type, _Args) ->
 	testModule2:startNPipes(5),
 	Dispatch = cowboy_router:compile([
 		{'_', [
-			{"/[...]", cowboy_static, {priv_dir, tagp, ""}}
-			%{"/", toppage_h, []}
+			%{"/[...]", cowboy_static, {priv_dir, tagp, ""}}
+			%{"/[...]", cowboy_static, {priv_file, tagp, "priv/index.html"}}
+			{"/", toppage_h, []}
 		]}
 	]),
 	{ok, _} = cowboy:start_clear(http, [{port, 8080}], #{
