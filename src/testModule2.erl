@@ -2,6 +2,7 @@
 -export([startSimpleTest/0]).
 -export([startNPipes/1]).
 -export([makePipes/3]).
+-export([connectPipes/1]).
 -export([stop/0, getAllConnectors/1]).
 
 startSimpleTest() ->
@@ -25,12 +26,15 @@ startNPipes(N) ->
 	%This module strives to:
 	%1) Create N pipe instances
 	%2) Create a network containing all N pipes, connecting them in a circle
-	observer:start(),
-	survivor:start(),
+	% observer:start(),
+	% survivor:start(),
 	{ok,PipeTypePID} = resource_type:create(pipeTyp,[]),
 	Pipes = makePipes(N,[], PipeTypePID),
 	io:format("~p pipes are made ~n", [N]),
-	{nPipes, N, Pipes}.
+	%now all pipes are made, the need to be connected together
+	%All pipes in the list are connected with the one behind and in front of it
+	%The last and first pipe in the list are also connected
+	connectPipes(Pipes).
 	%ok = connectPipesCircle(Pipes),
 	%{n_connected_circle,N,Pipes}.
 
@@ -55,6 +59,26 @@ makePipes(N, PipeList, PipeTypePID) ->
 		io:format("N has a negative value!~n"),
 	 	{error, "N has a negative value"}
 	end.
+
+connectPipes([FirstPipe|OtherPipes]) ->
+	connectPipes(FirstPipe, FirstPipe, OtherPipes).
+
+connectPipes(FirstPipe, PipeToConnect, [MiddlePipe | OtherPipes]) ->
+	%The PipeToConnect gets connected with the newt pipe in the list,
+	%this is the MiddlePipe
+	{ok,[_P1C1,P1C2]} = resource_instance:list_connectors(PipeToConnect),
+	{ok,[P2C1,_P2C2]} = resource_instance:list_connectors(MiddlePipe),
+	connector:connect(P1C2, P2C1),
+	connectPipes(FirstPipe, MiddlePipe, OtherPipes);
+
+connectPipes(FirstPipe, PipeToConnect, []) ->
+	%If the List of to do Pipes is empty, the first and last Pipe need to be connected
+	%The end connector of the first Pipe and the end connector of the last pipe
+	%are already used! this means the other pipes need to be used
+	{ok,[P1C1,_P1C2]} = resource_instance:list_connectors(FirstPipe),
+	{ok,[_P2C1,P2C2]} = resource_instance:list_connectors(PipeToConnect),
+	connector:connect(P1C1, P2C2).
+
 
 stop() ->
 	survivor ! stop,

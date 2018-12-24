@@ -13,7 +13,8 @@
 start(_Type, _Args) ->
 	%Waarde = 2+2,
 	%io:format("hier is de survivor normaal gestart~n",[]),
-	%survivor:start(),
+	survivor:start(),
+	observer:start(),
 	%testModule:start(),
 	testModule2:startNPipes(5),
 	Dispatch = cowboy_router:compile([
