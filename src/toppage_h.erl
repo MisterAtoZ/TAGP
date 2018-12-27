@@ -2,11 +2,13 @@
 
 %% @doc Hello world handler.
 -module(toppage_h).
+%-behaviour(cowboy_http_handler).
 
 -export([init/3, handle/2, terminate/3]).
 
-init(_Type, Req0,_Opts) ->
-	{ok, Req0, undefined_state}.
+init({tcp, http}, _Req0, _Opts) ->
+	%{ok, Req0, undefined_state}.
+	{upgrade, protocol, cowboy_rest}.
 
 handle(Req0, State) ->
 	{ok,Req} = cowboy_req:reply(200, {},
@@ -15,3 +17,4 @@ handle(Req0, State) ->
 
 terminate(_Reason, _Req, _State) ->
 	ok.
+
